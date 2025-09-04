@@ -61,13 +61,13 @@ const MyDayCard = ({ habits, checkins, toggleCheckin }) => {
   };
 
   const getWeekKeyForDate = (date) => {
-    // Encontrar início da semana (segunda-feira)
+    // Encontrar início da semana (domingo)
     const startOfWeek = new Date(date);
     const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = startOfWeek.getDate() - day; // Domingo = 0, então não precisa ajuste
     startOfWeek.setDate(diff);
     
-    // Encontrar fim da semana (domingo)
+    // Encontrar fim da semana (sábado)
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
@@ -81,7 +81,7 @@ const MyDayCard = ({ habits, checkins, toggleCheckin }) => {
   const getHabitsForDate = (date) => {
     const weekKey = getWeekKeyForDate(date);
     const weekHabits = habits[weekKey] || [];
-    const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1; // Converter domingo=0 para domingo=6
+    const dayIndex = date.getDay(); // Domingo=0, Segunda=1, ..., Sábado=6
     
     return weekHabits.filter(habit => {
       if (habit.type === 'daily') {
@@ -106,6 +106,48 @@ const MyDayCard = ({ habits, checkins, toggleCheckin }) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + direction);
     setSelectedDate(newDate);
+  };
+
+  const exportToWhatsApp = () => {
+    const dayNamesComplete = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    const dayName = dayNamesComplete[selectedDate.getDay()];
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const year = selectedDate.getFullYear();
+    
+    let message = `*Meu dia*\n\n_${day}/${month}/${year}, ${dayName}_\n\n\n`;
+    
+    const periodEmojisForWhatsApp = ['🔆', '🕛', '🌜'];
+    const periodNamesForWhatsApp = ['Manhã', 'Tarde', 'Noite'];
+    
+    periodNamesForWhatsApp.forEach((period, periodIndex) => {
+      const periodHabits = getHabitsForDate(selectedDate).filter(habit => habit.period === periodIndex);
+      
+      message += `*${periodEmojisForWhatsApp[periodIndex]} ${period}*\n`;
+      
+      if (periodHabits.length === 0) {
+        message += `Nenhum hábito para ${period.toLowerCase()}\n\n`;
+      } else {
+        periodHabits.forEach(habit => {
+          const weekKey = getWeekKeyForDate(selectedDate);
+          const dayIndex = selectedDate.getDay();
+          const checkinKey = `${weekKey}_${habit.id}`;
+          const habitCheckins = checkins[checkinKey] || {};
+          const isChecked = habitCheckins[dayIndex];
+          
+          const checkbox = isChecked ? '✅' : '⬜';
+          message += `${checkbox} ${habit.name}\n`;
+        });
+        message += '\n';
+      }
+    });
+    
+    // Codificar a mensagem para URL
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    
+    // Abrir no WhatsApp
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -160,7 +202,7 @@ const MyDayCard = ({ habits, checkins, toggleCheckin }) => {
                 <div className="space-y-3">
                   {periodHabits.map(habit => {
                     const weekKey = getWeekKeyForDate(selectedDate);
-                    const dayIndex = selectedDate.getDay() === 0 ? 6 : selectedDate.getDay() - 1; // Converter domingo=0 para domingo=6
+                    const dayIndex = selectedDate.getDay(); // Converter domingo=0 para domingo=6
                     const checkinKey = `${weekKey}_${habit.id}`;
                     const habitCheckins = checkins[checkinKey] || {};
                     const isChecked = habitCheckins[dayIndex];
@@ -200,10 +242,25 @@ const MyDayCard = ({ habits, checkins, toggleCheckin }) => {
           })}
         </div>
         
-        <div className="mt-8 pt-6 border-t border-white/20 text-center">
-          <p className="text-sm calm-text-muted italic" style={{ fontFamily: 'Dosis, sans-serif' }}>
-            "Run fast, laugh hard, be kind (...) We're all stories, in the end." – The Twelfth Doctor
-          </p>
+        <div className="mt-8 pt-6 border-t border-white/20">
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={exportToWhatsApp}
+              className="calm-button-primary flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105"
+              style={{ fontFamily: 'Asimovian, sans-serif' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" fill="currentColor"/>
+                <path d="M12.011 2.5a9.5 9.5 0 0 0-8.004 14.457L2 21.5l5.043-1.007A9.5 9.5 0 1 0 12.011 2.5zm0 17.05A7.55 7.55 0 0 1 5.11 17.44l-.541-.324-2.797.56.57-2.754-.353-.564A7.55 7.55 0 1 1 12.011 19.55z" fill="currentColor"/>
+              </svg>
+              Exportar para WhatsApp
+            </button>
+          </div>
+          <div className="text-center">
+            <p className="text-sm calm-text-muted italic" style={{ fontFamily: 'Dosis, sans-serif' }}>
+              "Run fast, laugh hard, be kind (...) We're all stories, in the end." – The Twelfth Doctor
+            </p>
+          </div>
         </div>
       </div>
     </div>

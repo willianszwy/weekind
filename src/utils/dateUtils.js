@@ -3,8 +3,8 @@ export const monthNames = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
-export const dayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-export const dayNamesComplete = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+export const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+export const dayNamesComplete = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 export const formatDate = (date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -23,8 +23,8 @@ export const getWeeksInMonth = (date) => {
   const weeks = [];
   let currentDate = new Date(firstDay);
   
-  // Ajustar para começar na segunda-feira
-  while (currentDate.getDay() !== 1) {
+  // Ajustar para começar no domingo (0)
+  while (currentDate.getDay() !== 0) {
     currentDate.setDate(currentDate.getDate() - 1);
   }
   

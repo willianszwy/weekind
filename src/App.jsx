@@ -20,7 +20,8 @@ function App() {
     editHabit,
     toggleCheckin,
     getWeekHabits,
-    getHabitCheckins
+    getHabitCheckins,
+    importHabitsFromPreviousWeek
   } = useHabits();
 
   const handleBackToCalendar = () => {
@@ -40,6 +41,7 @@ function App() {
             onToggleCheckin={toggleCheckin}
             onRemoveHabit={removeHabit}
             getHabitCheckins={getHabitCheckins}
+            onImportFromPreviousWeek={importHabitsFromPreviousWeek}
           />
         ) : (
           <div className="space-y-6">

@@ -5,7 +5,7 @@ import AddHabitForm from './AddHabitForm';
 import RobotIcon from './RobotIcon';
 import PlanetIcon from './PlanetIcon';
 
-const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveHabit, onEditHabit, getHabitCheckins }) => {
+const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveHabit, onEditHabit, getHabitCheckins, onImportFromPreviousWeek }) => {
   const [showAddHabit, setShowAddHabit] = useState(false);
   const [editingHabit, setEditingHabit] = useState(null);
   const weekKey = getWeekKey(week.start, week.end);
@@ -32,40 +32,64 @@ const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveH
     setEditingHabit(null);
   };
 
+  const handleImportFromPreviousWeek = () => {
+    const success = onImportFromPreviousWeek(weekKey);
+    if (success) {
+      alert('Hábitos da semana anterior importados com sucesso!');
+    } else {
+      alert('Não há hábitos na semana anterior para importar.');
+    }
+  };
+
   return (
     <div className="calm-glass">
       <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
+        {/* Layout responsivo com botões em cima */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <button
             onClick={onBack}
-            className="calm-button-secondary flex items-center gap-2"
+            className="calm-button-secondary flex items-center gap-2 w-full sm:w-auto"
             style={{ fontFamily: 'Asimovian, sans-serif' }}
           >
             <ArrowLeft size={20} />
             Voltar ao calendário
           </button>
           
-          <div className="text-center flex-1 mx-8">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <RobotIcon size={50} className="drop-shadow-sm" />
-              <h2 className="text-2xl font-medium calm-text-primary" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-                {monthNames[week.start.getMonth()]}: 
-                <span style={{ fontFamily: 'Dosis, sans-serif' }}> {week.start.getDate()} a {week.end.getDate()}</span>
-              </h2>
-            </div>
-            <p className="text-sm calm-text-secondary font-medium" style={{ fontFamily: 'Dosis, sans-serif' }}>
-              Do or not do. There's no try.
-            </p>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleImportFromPreviousWeek}
+              className="calm-button-secondary flex items-center gap-2 justify-center w-full sm:w-auto"
+              style={{ fontFamily: 'Asimovian, sans-serif' }}
+              title="Importar hábitos da semana anterior"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 17L12 13L16 17M12 13V21M20 6.5C20 4.01 17.99 2 15.5 2C13.46 2 11.77 3.3 11.22 5.1C10.87 5.04 10.44 5 10 5C7.79 5 6 6.79 6 9C6 9.68 6.16 10.32 6.44 10.9C4.46 11.92 3 13.74 3 15.84C3 18.59 5.23 20.82 8 20.82H20C21.66 20.82 23 19.48 23 17.82C23 16.16 21.66 14.82 20 14.82H18.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Hábitos Antigos
+            </button>
+            <button
+              onClick={() => setShowAddHabit(true)}
+              className="calm-button-primary flex items-center gap-2 justify-center w-full sm:w-auto"
+              style={{ fontFamily: 'Asimovian, sans-serif' }}
+            >
+              <Plus size={20} />
+              Novo Hábito
+            </button>
           </div>
+        </div>
 
-          <button
-            onClick={() => setShowAddHabit(true)}
-            className="calm-button-primary flex items-center gap-2"
-            style={{ fontFamily: 'Asimovian, sans-serif' }}
-          >
-            <Plus size={20} />
-            Novo Hábito
-          </button>
+        {/* Título e citação centralizados */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <RobotIcon size={50} className="drop-shadow-sm" />
+            <h2 className="text-3xl font-medium calm-text-primary" style={{ fontFamily: 'Asimovian, sans-serif' }}>
+              {monthNames[week.start.getMonth()]}: 
+              <span style={{ fontFamily: 'Dosis, sans-serif' }}> {week.start.getDate()} a {week.end.getDate()}</span>
+            </h2>
+          </div>
+          <p className="text-sm calm-text-secondary font-medium italic" style={{ fontFamily: 'Dosis, sans-serif' }}>
+            "Do or not do. There's no try."
+          </p>
         </div>
 
         {showAddHabit && (

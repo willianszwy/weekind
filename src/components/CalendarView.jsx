@@ -211,7 +211,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
       return '';
     }
     
-    const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
+    const dayIndex = date.getDay();
     let highestPriority = null;
     let highestPriorityValue = 0;
     

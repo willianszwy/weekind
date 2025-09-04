@@ -16,13 +16,13 @@ const DailyStatusCard = ({ habits, checkins }) => {
 
   const getCurrentWeekKey = () => {
     const today = new Date();
-    // Encontrar início da semana (segunda-feira)
+    // Encontrar início da semana (domingo)
     const startOfWeek = new Date(today);
     const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = startOfWeek.getDate() - day; // Domingo = 0, então não precisa ajuste
     startOfWeek.setDate(diff);
     
-    // Encontrar fim da semana (domingo)
+    // Encontrar fim da semana (sábado)
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
@@ -61,7 +61,7 @@ const DailyStatusCard = ({ habits, checkins }) => {
       );
     } else if (percentage <= 50) {
       return (
-        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
+        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-32 h-32">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -90,7 +90,7 @@ const DailyStatusCard = ({ habits, checkins }) => {
       );
     } else if (percentage <= 75) {
       return (
-        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
+        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-32 h-32">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -116,10 +116,10 @@ const DailyStatusCard = ({ habits, checkins }) => {
         </svg>
       );
     } else if (percentage < 100) {
-      return '🙃';
+      return <span className="text-8xl">🙃</span>;
     } else {
       return (
-        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
+        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-32 h-32">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -154,7 +154,7 @@ const DailyStatusCard = ({ habits, checkins }) => {
     const weekHabits = habits[weekKey] || [];
     if (weekHabits.length === 0) return { icon: getPerformanceIcon(0), percentage: 0 };
     
-    const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1; // Converter domingo=0 para domingo=6
+    const dayIndex = date.getDay(); // Domingo=0, Segunda=1, ..., Sábado=6
     let totalHabits = 0;
     let completedHabits = 0;
     

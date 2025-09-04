@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MyWeekCard = ({ habits, checkins }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const dayLetters = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']; // Segunda, Terça, Quarta, Quinta, Sexta, Sábado, Domingo
+  const dayLetters = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // Domingo, Segunda, Terça, Quarta, Quinta, Sexta, Sábado
 
   const priorityColors = {
     'alta': 'text-red-600',
@@ -13,13 +13,13 @@ const MyWeekCard = ({ habits, checkins }) => {
   };
 
   const getWeekKeyForDate = (date) => {
-    // Encontrar início da semana (segunda-feira)
+    // Encontrar início da semana (domingo)
     const startOfWeek = new Date(date);
     const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+    const diff = startOfWeek.getDate() - day; // Domingo = 0, então não precisa ajuste
     startOfWeek.setDate(diff);
     
-    // Encontrar fim da semana (domingo)
+    // Encontrar fim da semana (sábado)
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
