@@ -54,6 +54,15 @@ export const useHabits = () => {
     });
   };
 
+  const editHabit = (weekKey, habitId, updatedHabit) => {
+    setHabits(prev => ({
+      ...prev,
+      [weekKey]: prev[weekKey]?.map(habit => 
+        habit.id === habitId ? { ...habit, ...updatedHabit } : habit
+      ) || []
+    }));
+  };
+
   const toggleCheckin = (weekKey, habitId, dayIndex) => {
     const checkinKey = `${weekKey}_${habitId}`;
     setCheckins(prev => ({
@@ -77,6 +86,7 @@ export const useHabits = () => {
     checkins,
     addHabit,
     removeHabit,
+    editHabit,
     toggleCheckin,
     getWeekHabits,
     getHabitCheckins

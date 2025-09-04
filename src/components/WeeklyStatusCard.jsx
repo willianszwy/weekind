@@ -1,53 +1,52 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { monthNames, dayNames, getWeeksInMonth, getWeekKey, getWeekPerformance } from '../utils/dateUtils';
-import LoveIcon from './LoveIcon';
-import SadIcon from './SadIcon';
-import MapIcon from './MapIcon';
 
-const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkins }) => {
-  const weeks = getWeeksInMonth(currentDate);
-
-  const priorityOrder = { 'alta': 4, 'media': 3, 'baixa': 2, 'baixissima': 1 };
-  const priorityColors = {
-    'alta': 'text-red-600',
-    'media': 'text-orange-600',
-    'baixa': 'text-green-600',
-    'baixissima': 'text-blue-600'
+const WeeklyStatusCard = ({ habits, checkins }) => {
+  const getCurrentWeekKey = () => {
+    const today = new Date();
+    // Encontrar início da semana (segunda-feira)
+    const startOfWeek = new Date(today);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+    startOfWeek.setDate(diff);
+    
+    // Encontrar fim da semana (domingo)
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    const formatDate = (date) => {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+    
+    return {
+      key: `${formatDate(startOfWeek)}_${formatDate(endOfWeek)}`,
+      start: startOfWeek,
+      end: endOfWeek
+    };
   };
 
-  const getWeekPerformanceIcon = (weekKey) => {
-    const weekHabits = habits[weekKey] || [];
+  const formatWeekRange = (startDate, endDate) => {
+    const monthNames = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
     
-    if (weekHabits.length === 0) return getPerformanceIcon(0, `calendar-${weekKey}`);
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    const endDay = String(endDate.getDate()).padStart(2, '0');
+    const month = monthNames[startDate.getMonth()];
     
-    let totalPossibleCheckins = 0;
-    let completedCheckins = 0;
-    
-    weekHabits.forEach(habit => {
-      const checkinKey = `${weekKey}_${habit.id}`;
-      const habitCheckins = checkins[checkinKey] || {};
-      
-      if (habit.type === 'daily') {
-        totalPossibleCheckins += 7;
-        completedCheckins += Object.values(habitCheckins).filter(Boolean).length;
-      } else if (habit.type === 'custom') {
-        totalPossibleCheckins += habit.customDays.length;
-        habit.customDays.forEach(dayIndex => {
-          if (habitCheckins[dayIndex]) completedCheckins++;
-        });
-      }
-    });
-    
-    const percentage = totalPossibleCheckins > 0 ? (completedCheckins / totalPossibleCheckins) * 100 : 0;
-    
-    return getPerformanceIcon(percentage, `calendar-${weekKey}`);
+    if (startDate.getMonth() === endDate.getMonth()) {
+      return `${startDay} a ${endDay} de ${month}`;
+    } else {
+      const startMonth = monthNames[startDate.getMonth()];
+      const endMonth = monthNames[endDate.getMonth()];
+      return `${startDay} de ${startMonth} a ${endDay} de ${endMonth}`;
+    }
   };
 
-  const getPerformanceIcon = (percentage, uniqueKey) => {
+  const getPerformanceIcon = (percentage) => {
     if (percentage < 30) {
       return (
-        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-12 h-12">
+        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-32 h-32">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -76,7 +75,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
       );
     } else if (percentage <= 50) {
       return (
-        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-12 h-12">
+        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -105,7 +104,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
       );
     } else if (percentage <= 75) {
       return (
-        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-12 h-12">
+        <svg viewBox="0 -12.02 94.572 94.572" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -132,7 +131,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
       );
     } else if (percentage < 100) {
       return (
-        <svg viewBox="0 -12.02 94.571 94.571" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-12 h-12">
+        <svg viewBox="0 -12.02 94.571 94.571" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -159,7 +158,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
       );
     } else {
       return (
-        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-12 h-12">
+        <svg viewBox="0 -12.02 94.56 94.56" xmlns="http://www.w3.org/2000/svg" fill="#000000" className="w-16 h-16">
           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
@@ -189,175 +188,57 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
     }
   };
 
-  const getDayPriorityColor = (date) => {
-    // Encontrar a semana que contém esta data
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-    startOfWeek.setDate(diff);
+  const getWeeklyPerformance = () => {
+    const currentWeek = getCurrentWeekKey();
+    const weekHabits = habits[currentWeek.key] || [];
     
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    if (weekHabits.length === 0) return { icon: getPerformanceIcon(0), percentage: 0 };
     
-    const formatDate = (date) => {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
-    
-    const weekKey = `${formatDate(startOfWeek)}_${formatDate(endOfWeek)}`;
-    const weekHabits = habits[weekKey] || [];
-    
-    // Se não há hábitos cadastrados para esta semana, não colorir
-    if (weekHabits.length === 0) {
-      return '';
-    }
-    
-    const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
-    let highestPriority = null;
-    let highestPriorityValue = 0;
+    let totalPossibleCheckins = 0;
+    let completedCheckins = 0;
     
     weekHabits.forEach(habit => {
-      let isScheduledForThisDay = false;
+      const checkinKey = `${currentWeek.key}_${habit.id}`;
+      const habitCheckins = checkins[checkinKey] || {};
       
       if (habit.type === 'daily') {
-        isScheduledForThisDay = true;
-      } else if (habit.type === 'custom' && habit.customDays.includes(dayIndex)) {
-        isScheduledForThisDay = true;
-      }
-      
-      if (isScheduledForThisDay) {
-        const priority = habit.priority || 'baixa';
-        const priorityValue = priorityOrder[priority] || 1;
-        
-        if (priorityValue > highestPriorityValue) {
-          highestPriorityValue = priorityValue;
-          highestPriority = priority;
-        }
+        totalPossibleCheckins += 7;
+        completedCheckins += Object.values(habitCheckins).filter(Boolean).length;
+      } else if (habit.type === 'custom') {
+        totalPossibleCheckins += habit.customDays.length;
+        habit.customDays.forEach(dayIndex => {
+          if (habitCheckins[dayIndex]) completedCheckins++;
+        });
       }
     });
-
-    return highestPriority ? priorityColors[highestPriority] : '';
+    
+    const percentage = totalPossibleCheckins > 0 ? (completedCheckins / totalPossibleCheckins) * 100 : 0;
+    
+    return { icon: getPerformanceIcon(percentage), percentage: Math.round(percentage) };
   };
 
-  const navigateMonth = (direction) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + direction);
-    onDateChange(newDate);
-  };
+  const currentWeek = getCurrentWeekKey();
+  const performance = getWeeklyPerformance();
 
   return (
-    <div className="calm-glass" style={{ backgroundColor: '#e4d1e4' }}>
-      <div className="p-8">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-medium calm-text-primary" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-            Calendário Mensal
-          </h2>
-          <br />
-          <p className="text-sm calm-text-muted italic" style={{ fontFamily: 'Dosis, sans-serif' }}>
-            "Time is an illusion. Lunchtime doubly so" - Douglas Adams
+    <div className="calm-glass" style={{ backgroundColor: '#efe1e1' }}>
+      <div className="p-8 text-center">
+        <h2 className="text-2xl font-medium calm-text-primary mb-4" style={{ fontFamily: 'Asimovian, sans-serif' }}>
+          Status da Semana
+        </h2>
+        <p className="text-lg calm-text-secondary mb-6" style={{ fontFamily: 'Dosis, sans-serif' }}>
+          {formatWeekRange(currentWeek.start, currentWeek.end)}
+        </p>
+        <div className="flex flex-col items-center gap-2">
+          <div className="mb-2">
+            {performance.icon}
+          </div>
+          <p className="text-sm calm-text-secondary" style={{ fontFamily: 'Dosis, sans-serif' }}>
+            {performance.percentage}% dos hábitos concluídos
           </p>
           <br />
-          <br />
-        </div>
-
-        <div className="flex justify-between items-center mb-8">
-          <button
-            onClick={() => navigateMonth(-1)}
-            className="calm-button-secondary flex items-center gap-2"
-            aria-label="Mês anterior"
-            style={{ fontFamily: 'Asimovian, sans-serif' }}
-          >
-            <ChevronLeft size={20} />
-            Anterior
-          </button>
-          
-          <div className="text-center">
-            <h2 className="text-2xl font-medium calm-text-primary" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-              {monthNames[currentDate.getMonth()]}
-            </h2>
-            <div className="text-lg font-medium calm-text-secondary" style={{ fontFamily: 'Dosis, sans-serif' }}>
-              {currentDate.getFullYear()}
-            </div>
-          </div>
-          
-          <button
-            onClick={() => navigateMonth(1)}
-            className="calm-button-secondary flex items-center gap-2"
-            aria-label="Próximo mês"
-            style={{ fontFamily: 'Asimovian, sans-serif' }}
-          >
-            Próximo
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-8 gap-3 mb-6">
-          <div className="p-4 text-center calm-text-secondary font-medium text-sm" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-            Semana
-          </div>
-          {dayNames.map(day => (
-            <div key={day} className="p-4 text-center calm-text-secondary font-medium text-sm" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-              {day}
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-2">
-          {weeks.map((week, weekIndex) => {
-            const weekKey = getWeekKey(week.start, week.end);
-            const performanceIcon = getWeekPerformanceIcon(weekKey);
-            
-            return (
-              <div
-                key={weekIndex}
-                onClick={() => onWeekSelect(week)}
-                className="grid grid-cols-8 gap-3 cursor-pointer hover:bg-blue-50/50 rounded-2xl transition-all duration-300 p-3 group"
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && onWeekSelect(week)}
-              >
-                <div 
-                  className="flex items-center justify-center group-hover:scale-110 transition-transform duration-300 p-4" 
-                >
-                  <div>
-                    {performanceIcon}
-                  </div>
-                </div>
-                {week.days.map((day, dayIndex) => {
-                  const priorityColor = getDayPriorityColor(day);
-                  return (
-                    <div
-                      key={dayIndex}
-                      className={`p-4 flex items-center justify-center rounded-xl transition-all duration-300 ${
-                        day.getMonth() === currentDate.getMonth()
-                          ? 'bg-white/60 group-hover:bg-white/80 group-hover:shadow-sm'
-                          : 'bg-white/30'
-                      }`}
-                      style={{ fontFamily: 'Dosis, sans-serif' }}
-                    >
-                      <span className={`${
-                        day.getMonth() === currentDate.getMonth()
-                          ? priorityColor || 'calm-text-primary'
-                          : 'calm-text-muted'
-                      } ${
-                        day.getMonth() === currentDate.getMonth()
-                          ? priorityColor 
-                            ? 'font-bold' 
-                            : 'font-medium'
-                          : 'font-light'
-                      }`}>
-                        {day.getDate()}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-8 text-center">
-          <p className="text-xs calm-text-muted font-light" style={{ fontFamily: 'Asimovian, sans-serif' }}>
-            Clique em uma semana para gerenciar seus hábitos
+          <p className="text-sm calm-text-muted italic" style={{ fontFamily: 'Dosis, sans-serif' }}>
+            "I love deadlines. I like the whooshing sound they make as they fly by" - Douglas Adams
           </p>
         </div>
       </div>
@@ -365,4 +246,4 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
   );
 };
 
-export default CalendarView;
+export default WeeklyStatusCard;

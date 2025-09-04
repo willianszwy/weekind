@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit } from 'lucide-react';
 import { monthNames, getWeekKey, dayNamesComplete } from '../utils/dateUtils';
 import AddHabitForm from './AddHabitForm';
 import RobotIcon from './RobotIcon';
 import PlanetIcon from './PlanetIcon';
 
-const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveHabit, getHabitCheckins }) => {
+const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveHabit, onEditHabit, getHabitCheckins }) => {
   const [showAddHabit, setShowAddHabit] = useState(false);
+  const [editingHabit, setEditingHabit] = useState(null);
   const weekKey = getWeekKey(week.start, week.end);
   const weekHabits = habits[weekKey] || [];
 
@@ -19,6 +20,16 @@ const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveH
     if (window.confirm('Tem certeza que deseja remover este hábito?')) {
       onRemoveHabit(weekKey, habitId);
     }
+  };
+
+  const handleEditHabit = (habit) => {
+    setEditingHabit(habit);
+    setShowAddHabit(false);
+  };
+
+  const handleUpdateHabit = (habitData) => {
+    onEditHabit(weekKey, editingHabit.id, habitData);
+    setEditingHabit(null);
   };
 
   return (
@@ -66,6 +77,17 @@ const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveH
           </div>
         )}
 
+        {editingHabit && (
+          <div className="mb-8">
+            <AddHabitForm
+              initialHabit={editingHabit}
+              onAddHabit={handleUpdateHabit}
+              onCancel={() => setEditingHabit(null)}
+              isEditing={true}
+            />
+          </div>
+        )}
+
         {weekHabits.length > 0 ? (
           <div className="space-y-4">
             {weekHabits.map(habit => {
@@ -90,13 +112,22 @@ const WeekView = ({ week, onBack, habits, onAddHabit, onToggleCheckin, onRemoveH
                         <span className="font-medium" style={{ fontFamily: 'Dosis, sans-serif' }}>{Math.round(progressPercent)}%</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleRemoveHabit(habit.id)}
-                      className="p-2 text-slate-400 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
-                      title="Remover hábito"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEditHabit(habit)}
+                        className="p-2 text-slate-400 hover:text-blue-400 transition-colors rounded-lg hover:bg-blue-50"
+                        title="Editar hábito"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleRemoveHabit(habit.id)}
+                        className="p-2 text-slate-400 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
+                        title="Remover hábito"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-7 gap-3">
