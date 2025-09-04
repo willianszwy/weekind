@@ -245,7 +245,7 @@ const CalendarView = ({ currentDate, onDateChange, onWeekSelect, habits, checkin
   };
 
   return (
-    <div className="calm-glass" style={{ backgroundColor: '#e4d1e4' }}>
+    <div className="calm-glass" style={{ backgroundColor: '#faefff' }}>
       <div className="p-8">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-medium calm-text-primary" style={{ fontFamily: 'Asimovian, sans-serif' }}>
